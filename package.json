@@ -1,7 +1,7 @@
 {
   "name": "aqa-advanced-playwright",
   "version": "1.0.0",
-  "description": "",
+  "description": "Simple",
   "main": "index.js",
   "dependencies": {
     "aggregate-error": "^3.1.0",
@@ -160,6 +160,8 @@
     "performance-now": "^2.1.0",
     "picocolors": "^1.1.1",
     "pify": "^2.3.0",
+    "playwright": "^1.58.2",
+    "playwright-core": "^1.58.2",
     "pretty-bytes": "^5.6.0",
     "process": "^0.11.10",
     "prop-types": "^15.8.1",
