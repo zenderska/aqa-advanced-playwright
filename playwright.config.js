@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+  workers: 1,
   testDir: './tests',
 
   timeout: 30000,
@@ -19,8 +20,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: 'https://guest:welcome2qauto@qauto.forstudy.space',
-
+    baseURL: 'https://guest:welcome2qauto@qauto.forstudy.space/',
     headless: true,
 
     viewport: { width: 1280, height: 720 },
