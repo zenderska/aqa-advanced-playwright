@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { SignupPage } from '../../pages/SignupPage';
 import { LoginPage } from '../../pages/LoginPage';
 
-test.describe('Registration & Authorization', () => {
+test.describe('Auth (POM) - Registration vs Validation', () => {
   let signupPage;
   let loginPage;
 
@@ -26,39 +26,18 @@ test.describe('Registration & Authorization', () => {
     await page.goto('/');
   });
 
-  const registerOrLogin = async (page, user) => {
-    const responsePromise = page.waitForResponse(
-      (resp) => resp.url().includes('/api/auth/signup') && resp.request().method() === 'POST'
-    );
-
-    await signupPage.fillForm(user);
-    await signupPage.submit();
-
-    const response = await responsePromise;
-
-    if (response.status() === 201) {
-      await page.waitForURL(/.*panel/);
-    }
-
-    if (response.status() === 400) {
-      await signupPage.closeModal();
-      await loginPage.login(user.email, user.password);
-      await expect(page).toHaveURL(/\/panel/);
-    }
-  };
-
-  test('Should register or login if user already exists', async ({ page }) => {
+  test('Should register or login if user exists', async () => {
     await signupPage.openSignup();
-    await registerOrLogin(page, validUser);
+    await signupPage.registerOrLogin(validUser, loginPage);
   });
 
-  test('Should register successfully with dynamic email', async ({ page }) => {
+  test('Should register successfully with dynamic email', async () => {
+    const user = generateUser();
     await signupPage.openSignup();
-    await registerOrLogin(page, generateUser());
+    await signupPage.registerOrLogin(user, loginPage);
   });
 
   test.describe('Registration Modal - Validation tests', () => {
-
     test.beforeEach(async () => {
       await signupPage.openRegistrationViaSignIn();
     });
@@ -67,85 +46,84 @@ test.describe('Registration & Authorization', () => {
       await signupPage.closeModal();
     });
 
-    test('Name - required', async () => {
-      await signupPage.triggerNameRequired();
-      await expect(signupPage.error('Name required')).toBeVisible({ timeout: 5000 });
-    });
+     test('Name - required', async () => {
+    await signupPage.registrationModal().locator('[name="name"]').click();
+    await signupPage.registrationModal().locator('[name="lastName"]').click();
+    await expect(signupPage.registrationModal().getByText('Name required')).toBeVisible();
+  });
 
-    test('Name - invalid characters', async () => {
-      await signupPage.triggerNameInvalid();
-      await expect(signupPage.error('Name is invalid')).toBeVisible();
-    });
+  test('Name - invalid characters', async () => {
+    await signupPage.registrationModal().locator('[name="name"]').fill('1');
+    await signupPage.registrationModal().locator('[name="lastName"]').click();
+    await expect(signupPage.registrationModal().getByText('Name is invalid')).toBeVisible();
+  });
 
-    test('Name - too short', async () => {
-      await signupPage.triggerNameTooShort();
-      await expect(
-        signupPage.error('Name has to be from 2 to 20 characters long')
-      ).toBeVisible();
-    });
+  test('Name - too short', async () => {
+    await signupPage.registrationModal().locator('[name="name"]').fill('A');
+    await signupPage.registrationModal().locator('[name="lastName"]').click();
+    await expect(signupPage.registrationModal().getByText('Name has to be from 2 to 20 characters long')).toBeVisible();
+  });
 
-    test('Last Name - required', async () => {
-      await signupPage.triggerLastNameRequired();
-      await expect(signupPage.error('Last name required')).toBeVisible();
-    });
+  test('Last Name - required', async () => {
+    await signupPage.registrationModal().locator('[name="lastName"]').click();
+    await signupPage.registrationModal().locator('[name="name"]').click();
+    await expect(signupPage.registrationModal().getByText('Last name required')).toBeVisible();
+  });
 
-    test('Last Name - invalid characters', async () => {
-      await signupPage.triggerLastNameInvalid();
-      await expect(signupPage.error('Last name is invalid')).toBeVisible();
-    });
+  test('Last Name - invalid characters', async () => {
+    await signupPage.registrationModal().locator('[name="lastName"]').fill('1');
+    await signupPage.registrationModal().locator('[name="name"]').click();
+    await expect(signupPage.registrationModal().getByText('Last name is invalid')).toBeVisible();
+  });
 
-    test('Last Name - too short', async () => {
-      await signupPage.triggerLastNameTooShort();
-      await expect(
-        signupPage.error('Last name has to be from 2 to 20 characters long')
-      ).toBeVisible();
-    });
+  test('Last Name - too short', async () => {
+    await signupPage.registrationModal().locator('[name="lastName"]').fill('A');
+    await signupPage.registrationModal().locator('[name="name"]').click();
+    await expect(signupPage.registrationModal().getByText('Last name has to be from 2 to 20 characters long')).toBeVisible();
+  });
 
-    test('Email - required', async () => {
-      await signupPage.triggerEmailRequired();
-      await expect(signupPage.error('Email required')).toBeVisible();
-    });
+  test('Email - required', async () => {
+    await signupPage.registrationModal().locator('[name="email"]').click();
+    await signupPage.registrationModal().locator('[name="password"]').click();
+    await expect(signupPage.registrationModal().getByText('Email required')).toBeVisible();
+  });
 
-    test('Email - invalid format', async () => {
-      await signupPage.triggerEmailInvalid();
-      await expect(signupPage.error('Email is incorrect')).toBeVisible();
-    });
+  test('Email - invalid format', async () => {
+    await signupPage.registrationModal().locator('[name="email"]').fill('wrongemail');
+    await signupPage.registrationModal().locator('[name="password"]').click();
+    await expect(signupPage.registrationModal().getByText('Email is incorrect')).toBeVisible();
+  });
 
-    test('Password - required', async () => {
-      await signupPage.triggerPasswordRequired();
-      await expect(signupPage.error('Password required')).toBeVisible();
-    });
+  test('Password - required', async () => {
+    await signupPage.registrationModal().locator('[name="password"]').click();
+    await signupPage.registrationModal().locator('#signupRepeatPassword').click();
+    await expect(signupPage.registrationModal().getByText('Password required')).toBeVisible();
+  });
 
-    test('Password - invalid (too short)', async () => {
-      await signupPage.triggerPasswordTooShort();
-      await expect(
-        signupPage.error(
-          'Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter'
-        )
-      ).toBeVisible();
-    });
+  test('Password - too short', async () => {
+    await signupPage.registrationModal().locator('[name="password"]').fill('123');
+    await signupPage.registrationModal().locator('#signupRepeatPassword').click();
+    await expect(signupPage.registrationModal().getByText('Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter')).toBeVisible();
+  });
 
-    test('Password - invalid (weak)', async () => {
-      await signupPage.triggerPasswordWeak();
-      await expect(
-        signupPage.error(
-          'Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter'
-        )
-      ).toBeVisible();
-    });
+  test('Password - weak', async () => {
+    await signupPage.registrationModal().locator('[name="password"]').fill('password');
+    await signupPage.registrationModal().locator('#signupRepeatPassword').click();
+    await expect(signupPage.registrationModal().getByText('Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter')).toBeVisible();
+  });
 
-    test('Repeat Password - required', async () => {
-      await signupPage.triggerRepeatPasswordRequired();
-      await expect(signupPage.error('Re-enter password required')).toBeVisible();
-    });
+  test('Repeat Password - required', async () => {
+    await signupPage.registrationModal().locator('#signupRepeatPassword').fill('123');
+    await signupPage.registrationModal().locator('#signupRepeatPassword').fill('');
+    await signupPage.registrationModal().locator('[name="password"]').click();
+    await expect(signupPage.registrationModal().getByText('Re-enter password required')).toBeVisible();
+  });
 
-    test('Repeat Password - mismatch', async () => {
-      await signupPage.triggerPasswordMismatch();
-      await expect(
-        signupPage.error(
-          'Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter'
-        )
-      ).toBeVisible();
-    });
+  test('Repeat Password - mismatch', async () => {
+    await signupPage.registrationModal().locator('[name="password"]').fill('Password123');
+    await signupPage.registrationModal().locator('#signupRepeatPassword').fill('wrong');
+    await signupPage.registrationModal().locator('[name="password"]').click();
+    await expect(signupPage.registrationModal().getByText('Password has to be from 8 to 15 characters long and contain at least one integer, one capital, and one small letter')).toBeVisible();
   });
 });
+  });
