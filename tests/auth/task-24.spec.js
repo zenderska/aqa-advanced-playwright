@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { config } from '../../config/config';
 import { SignupPage } from '../../pages/SignupPage';
 import { LoginPage } from '../../pages/LoginPage';
 
@@ -23,7 +24,7 @@ test.describe('Auth (POM) - Registration vs Validation', () => {
   test.beforeEach(async ({ page }) => {
     signupPage = new SignupPage(page);
     loginPage = new LoginPage(page);
-    await page.goto('/');
+    await page.goto(config.baseUrl);
   });
 
   test('Should register or login if user exists', async () => {
