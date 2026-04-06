@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "Simple",
   "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "test:qauto": "cross-env ENV=qauto npx playwright test --workers=1",
+    "test:qauto2": "cross-env ENV=qauto2 npx playwright test --workers=1",
+    "test:all": "npm run test:qauto && npm run test:qauto2"
+  },
   "dependencies": {
     "aggregate-error": "^3.1.0",
     "ansi-colors": "^4.1.3",
@@ -226,10 +232,8 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.5.0",
+    "cross-env": "^10.1.0",
     "mocha": "^11.7.5"
-  },
-  "scripts": {
-    "test": "mocha"
   },
   "repository": {
     "type": "git",
