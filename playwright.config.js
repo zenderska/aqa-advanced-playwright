@@ -1,18 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+const env = process.env.ENV || 'qauto';
+dotenv.config({ path: `.env.${env}` });
 
 export default defineConfig({
-  workers: 1,
   testDir: './tests',
-
   timeout: 30000,
-
-  expect: {
-    timeout: 5000,
-  },
-
+  expect: { timeout: 5000 },
   fullyParallel: true,
-
   retries: 1,
+  workers: 1,
 
   reporter: [
     ['list'],
@@ -20,62 +18,31 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: 'https://guest:welcome2qauto@qauto.forstudy.space/',
-    headless: true,
-
+    baseURL: process.env.BASE_URL,
+    httpCredentials: {
+      username: process.env.HTTP_USER,
+      password: process.env.HTTP_PASSWORD,
+    },
+    headless: false,
     viewport: { width: 1280, height: 720 },
-
     ignoreHTTPSErrors: true,
-
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
     // {
-      // name: 'firefox',
-      // use: { ...devices['Desktop Firefox'] },
-    // },
-
-    // {
-      // name: 'webkit',
-      // use: { ...devices['Desktop Safari'] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
     // },
     // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
     // },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });
-
