@@ -50,13 +50,18 @@ dotenv.config({ path: `.env.${env}` });
 export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL,
-
     httpCredentials: {
       username: process.env.HTTP_USER,
       password: process.env.HTTP_PASSWORD,
     },
-    },
-
+    storageState: 'storageState.json',
+    headless: false,
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    trace: 'on-first-retry',
+  },
   projects: [
     {
       name: 'setup',
