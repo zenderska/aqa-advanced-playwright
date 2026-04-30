@@ -1,6 +1,8 @@
 export class LoginPage {
   constructor(page) {
     this.page = page;
+    this.userMenuButton = page.locator('#userNavDropdown');
+    this.logoutButton = page.locator('.dropdown-item', { hasText: 'Logout' });
   }
 
   async login(email, password) {
@@ -17,5 +19,11 @@ export class LoginPage {
     await this.page.getByRole('button', { name: /login/i }).click();
 
     await this.page.getByRole('heading', { name: 'Garage' }).waitFor({ timeout: 10000 });
+  }
+
+  async logout() {
+    await this.userMenuButton.click();
+    await this.logoutButton.click();
+    await this.page.getByRole('button', { name: /sign in/i }).waitFor({ timeout: 10000 });
   }
 }

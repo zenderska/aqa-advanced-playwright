@@ -26,19 +26,35 @@ test.describe('Auth (POM) - Registration vs Validation', () => {
     await page.goto('/');
   });
 
-  test('Should register or login if user exists', async () => {
-    await signupPage.openSignup();
-    await signupPage.registerOrLogin(validUser, loginPage);
-  });
+  test.describe('Verification tests', () => {
+    test('Should register or login if user exists', async ({ page }) => {
+      if (await page.locator('#userNavDropdown').count() > 0) {
+        await page.locator('#userNavDropdown').click();
+        await page.locator('.dropdown-item', { hasText: 'Logout' }).click();
+      }
 
-  test('Should register successfully with dynamic email', async () => {
-    const user = generateUser();
-    await signupPage.openSignup();
-    await signupPage.registerOrLogin(user, loginPage);
+      await signupPage.openSignup();
+      await signupPage.registerOrLogin(validUser, loginPage);
+    });
+
+    test('Should register successfully with dynamic email', async ({ page }) => {
+      if (await page.locator('#userNavDropdown').count() > 0) {
+        await page.locator('#userNavDropdown').click();
+        await page.locator('.dropdown-item', { hasText: 'Logout' }).click();
+      }
+
+      const user = generateUser();
+      await signupPage.openSignup();
+      await signupPage.registerOrLogin(user, loginPage);
+    });
   });
 
   test.describe('Registration Modal - Validation tests', () => {
-    test.beforeEach(async () => {
+    test.beforeEach(async ({ page }) => {
+      if (await page.locator('#userNavDropdown').count() > 0) {
+        await page.locator('#userNavDropdown').click();
+        await page.locator('.dropdown-item', { hasText: 'Logout' }).click();
+      }
       await signupPage.openRegistrationViaSignIn();
     });
 
