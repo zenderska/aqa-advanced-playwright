@@ -55,7 +55,7 @@ export default defineConfig({
       password: process.env.HTTP_PASSWORD,
     },
     storageState: 'storageState.json',
-    headless: false,
+    headless: true,
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
     video: 'retain-on-failure',
