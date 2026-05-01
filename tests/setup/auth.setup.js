@@ -15,7 +15,6 @@ export async function getAuthState() {
     baseURL: 'https://qauto.forstudy.space',
   });
 
-  // 🔐 Логін (підстав реальні креденшали)
   const loginResponse = await apiContext.post('/api/auth/signin', {
     data: {
       email: 'geresat765@paylaar.com',

@@ -7,8 +7,16 @@ let carsController;
 test.beforeAll(async () => {
   apiContext = await request.newContext({
     baseURL: 'https://qauto.forstudy.space',
-    storageState: 'storageState.json'
   });
+
+  const authResponse = await apiContext.post('/api/auth/signin', {
+    data: {
+      email: 'geresat765@paylaar.com',
+      password: 'Password123'
+    }
+  });
+
+  expect(authResponse.ok()).toBeTruthy();
 
   carsController = new CarsController(apiContext);
 });
